@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reception Dashboard - Dhunki</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="reception.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2378350f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z M6 1v3 M10 1v3 M14 1v3'/></svg>">
+</head>
+<body>
+    <header class="header">
+        <div class="logo-area">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z M6 1v3 M10 1v3 M14 1v3"/>
+            </svg>
+            <div>
+                <h1>Reception Dashboard</h1>
+                <div style="font-size: 0.85rem; opacity: 0.8; font-family: 'Outfit', sans-serif;">Dhunki Restaurant & Lounge</div>
+            </div>
+        </div>
+        <div class="actions">
+            <span class="badge" id="live-time">00:00:00</span>
+            <a href="index.html" class="btn btn-outline">Back to Home</a>
+        </div>
+    </header>
+
+    <div class="dashboard">
+        <!-- Dashboard Summary -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>Active Tables</h3>
+                <div class="metric-value" id="metric-active-tables">0</div>
+            </div>
+            <div class="metric-card">
+                <h3>Pending Orders</h3>
+                <div class="metric-value" id="metric-pending-orders">0</div>
+            </div>
+            <div class="metric-card">
+                <h3>Ready to Serve</h3>
+                <div class="metric-value" id="metric-ready-orders">0</div>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h2>Live Table Status</h2>
+            <p>Manage orders, update service status, and generate bills.</p>
+        </div>
+
+        <div class="tables-grid" id="tables-container">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Bill Modal -->
+    <div class="modal-overlay" id="bill-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeBillModal()">×</button>
+            <div class="modal-header">
+                <h2 id="bill-table-number">Table X Bill</h2>
+                <span class="modal-badge">Pending Payment</span>
+            </div>
+            <div id="bill-details" class="bill-details">
+                <!-- Populated by JS -->
+            </div>
+            <div class="bill-actions">
+                <button class="btn btn-secondary" onclick="closeBillModal()">Cancel</button>
+                <button class="btn btn-primary" id="btn-mark-paid">Mark as Paid</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="reception.js"></script>
+</body>
+</html>

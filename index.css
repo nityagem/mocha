@@ -10,6 +10,8 @@
     --shadow-sm: 0 2px 4px 0 rgba(43, 29, 15, 0.1);
     --shadow-md: 0 4px 8px -1px rgba(43, 29, 15, 0.15), 0 2px 4px -2px rgba(43, 29, 15, 0.1);
     --radius-md: 4px; /* Classic sharp corners */
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Outfit', sans-serif;
     --transition: all 0.2s ease-in-out;
 }
 
@@ -20,7 +22,7 @@
 }
 
 body {
-    font-family: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-body);
     color: var(--text-main);
     background-color: var(--bg-muted);
     -webkit-font-smoothing: antialiased;
@@ -597,5 +599,5 @@ input:indeterminate + .toggle-slider:before {
 
 /* Classic Typography Overrides */
 h1, h2, h3, h4, h5, h6, .brand-title, .category-title, .menu-card-title, .cart-header h2, .modal-header h3 {
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-heading);
 }

@@ -260,7 +260,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 .cancel-btn:hover {
                     opacity: 0.9;
                 }
-                body.timer-active .floating-cart-btn {
+                body.timer-active .floating-cart-btn,
+                body.timer-active .social-fab {
                     bottom: 70px !important;
                 }
             `;
@@ -338,6 +339,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (banner && banner.parentNode) {
                         banner.parentNode.removeChild(banner);
                         banner = null;
+                    }
+                    if (typeof window.updateCartUI === 'function') {
+                        window.updateCartUI();
                     }
                 }, 300);
             }

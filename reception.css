@@ -1,0 +1,331 @@
+:root {
+    --brand-color: #78350f;
+    --brand-light: #92400e;
+    --bg-main: #fdfbf7;
+    --bg-panel: #ffffff;
+    --text-dark: #1f2937;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Outfit', sans-serif;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-body);
+    background-color: var(--bg-main);
+    color: var(--text-dark);
+}
+
+.header {
+    background-color: var(--brand-color);
+    color: white;
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(120, 53, 15, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header h1 {
+    font-family: var(--font-heading);
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.badge {
+    background: rgba(255,255,255,0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn {
+    background: var(--brand-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: var(--font-body);
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.5);
+}
+.btn-secondary {
+    background: #e2e8f0;
+    color: var(--text-dark);
+}
+.btn-primary {
+    background: var(--success);
+}
+
+.dashboard {
+    padding: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Metrics */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.metric-card {
+    background: var(--bg-panel);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+}
+
+.metric-card h3 {
+    font-family: var(--font-heading);
+    margin: 0 0 8px 0;
+    color: var(--text-muted);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--brand-color);
+}
+
+.section-header h2 {
+    font-family: var(--font-heading);
+    margin: 0 0 4px 0;
+    font-size: 1.5rem;
+}
+.section-header p {
+    color: var(--text-muted);
+    margin: 0 0 24px 0;
+}
+
+/* Tables Grid */
+.tables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+.table-card {
+    background: var(--bg-panel);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-card-header {
+    background: #f8fafc;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.table-card-header h3 {
+    margin: 0;
+    font-family: var(--font-heading);
+    color: var(--brand-color);
+    font-size: 1.25rem;
+}
+
+.table-card-body {
+    padding: 16px;
+    flex-grow: 1;
+}
+
+.device-group {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--border-color);
+}
+.device-group:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.device-header {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 0.95rem;
+}
+
+.order-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.order-name {
+    font-weight: 500;
+}
+
+.order-status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+    display: inline-block;
+    width: max-content;
+}
+
+.status-pending { background: #fef3c7; color: #d97706; }
+.status-completed { background: #dbeafe; color: #2563eb; } /* Ready in Kitchen */
+.status-served { background: #d1fae5; color: #059669; }
+
+.serve-btn {
+    background: var(--info);
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+.serve-btn:hover { opacity: 0.9; }
+
+.table-card-footer {
+    padding: 16px;
+    background: #f8fafc;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.table-total {
+    font-weight: 700;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 1000;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background: var(--bg-panel);
+    width: 90%;
+    max-width: 500px;
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    transform: translateY(20px);
+    transition: transform 0.3s;
+}
+
+.modal-overlay.active .modal-content {
+    transform: translateY(0);
+}
+
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.modal-header h2 {
+    font-family: var(--font-heading);
+    margin: 0 0 8px 0;
+    color: var(--brand-color);
+}
+
+.bill-details {
+    margin: 24px 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.bill-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.bill-total-row {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 16px;
+    margin-top: 16px;
+    border-top: 2px solid var(--border-color);
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.bill-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}

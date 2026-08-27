@@ -190,14 +190,30 @@ document.addEventListener('DOMContentLoaded', () => {
             const imgSrc = item.querySelector('.item-img').src;
             const ingredients = item.getAttribute('data-ingredients') || 'Ingredients not available';
             
+            const isVeg = !name.toLowerCase().includes('chicken'); // Mock logic
+            const iconColor = isVeg ? '#22c55e' : '#b91c1c';
+            const iconShape = isVeg ? '<circle cx="12" cy="12" r="4" fill="currentColor"/>' : '<polygon points="12,8 16,16 8,16" fill="currentColor"/>';
+
             const html = `
                 <div class="freq-item">
-                    <img src="${imgSrc}" class="freq-item-img" alt="${name}">
-                    <div class="freq-item-info">
-                        <h5 class="freq-item-name">${name}</h5>
-                        <span class="freq-item-price">₹${price}</span>
+                    <div style="position: relative; width: 100px; height: 100%; flex-shrink: 0;">
+                        <img src="${imgSrc}" class="freq-item-img" alt="${name}">
+                        <div style="position: absolute; top: 4px; right: 4px; background: white; border-radius: 4px; padding: 2px;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" style="color: ${iconColor};">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                ${iconShape}
+                            </svg>
+                        </div>
                     </div>
-                    <button class="freq-item-add-btn" onclick="window.addFreqItemToCart('${name.replace(/'/g, "\\'")}', ${price}, '${imgSrc}', '${ingredients.replace(/'/g, "\\'")}')">ADD</button>
+                    <div class="freq-item-info">
+                        <h5 class="freq-item-name" style="margin: 0; font-size: 0.95rem; font-weight: 600; color: #1e293b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${name}</h5>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 8px;">
+                            <span class="freq-item-price" style="font-size: 0.9rem; color: #64748b;">₹${price}</span>
+                            <button class="freq-item-add-btn" onclick="window.addFreqItemToCart('${name.replace(/'/g, "\\'")}', ${price}, '${imgSrc}', '${ingredients.replace(/'/g, "\\'")}')">
+                                <span style="font-size: 1.1rem; line-height: 1;">+</span> ADD
+                            </button>
+                        </div>
+                    </div>
                 </div>
             `;
             freqBoughtItemsContainer.insertAdjacentHTML('beforeend', html);
@@ -228,65 +244,234 @@ document.addEventListener('DOMContentLoaded', () => {
     closeCartBtn.addEventListener('click', closeCart);
     cartOverlay.addEventListener('click', closeCart);
 
-    function updateCartUI() {
-        // Update badge
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-        if (totalItems > 0) {
-            cartBadge.style.display = 'flex';
-            cartBadge.textContent = totalItems;
-        } else {
-            cartBadge.style.display = 'none';
-        }
-
-        // Render items
-        if (cart.length === 0) {
-            cartItemsContainer.innerHTML = '<div class="empty-cart-msg">Your cart is empty</div>';
-            if (slideToOrderContainer) slideToOrderContainer.classList.add('disabled');
-            freqBoughtSection.style.display = 'none';
-            return;
-        }
-
-        if (slideToOrderContainer) slideToOrderContainer.classList.remove('disabled');
-        freqBoughtSection.style.display = 'block';
+    window.updateCartUI = function() {
+        // Render logic
         cartItemsContainer.innerHTML = '';
-        let subtotal = 0;
+        
+        // 1. Fetch active (placed) orders
+        const myTable = sessionStorage.getItem('mochaTableNumber') || 'Takeaway/Unknown';
+        const myDevice = localStorage.getItem('mochaDeviceId');
+        let kitchenOrders = [];
+        try {
+            kitchenOrders = JSON.parse(localStorage.getItem('mochaKitchenOrders')) || [];
+        } catch (e) {}
+        
+        // Find ALL active orders for this device and table
+        const activeOrders = kitchenOrders.filter(o => o.tableNumber === myTable && o.deviceId === myDevice && (o.status === 'pending' || o.status === 'completed' || o.status === 'served'));
+        
+        let hasActiveOrders = activeOrders.length > 0;
+        let billTotal = 0;
 
-        cart.forEach((item, index) => {
-            const itemTotal = item.unitPrice * item.quantity;
-            subtotal += itemTotal;
+        // Update badge and button visibility
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const cartItemCount = document.getElementById('cart-item-count');
+        if (cartItemCount) {
+            cartItemCount.textContent = totalItems + (hasActiveOrders ? activeOrders.reduce((sum, o) => sum + o.items.length, 0) : 0);
+        }
+        
+        if (totalItems > 0 || hasActiveOrders) {
+            floatingCartBtn.style.display = 'flex';
+        } else {
+            floatingCartBtn.style.display = 'none';
+        }
+
+
+        
+        // 2. Render active orders if any
+        if (hasActiveOrders) {
+            let allItemsHtml = '';
             
-            const addonsText = item.addons.length > 0 ? `Add-ons: ${item.addons.join(', ')}` : '';
-            const instText = item.instructions ? `Note: ${item.instructions}` : '';
-            
+            activeOrders.forEach(order => {
+                let statusText = 'Cooking...';
+                if (order.status === 'completed') statusText = 'Ready to Serve';
+                if (order.status === 'served') statusText = 'Served';
+
+                let orderItemsHtml = order.items.map(item => {
+                    const itemTotal = item.unitPrice * item.quantity;
+                    billTotal += itemTotal;
+                    return `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem;">
+                            <span>${item.quantity}x ${item.name}</span>
+                            <span>₹${itemTotal}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                allItemsHtml += `
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 0.85rem; color: var(--text-muted, #64748b);">Order #${order.id.substring(4, 9)}</span>
+                            <span style="font-size: 0.75rem; background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${statusText}</span>
+                        </div>
+                        ${orderItemsHtml}
+                    </div>
+                    <hr style="border: 0; border-top: 1px dashed #e2e8f0; margin: 12px 0;">
+                `;
+            });
+
             const html = `
-                <div class="cart-item">
-                    <img class="cart-item-img" src="${item.image}" alt="${item.name}" />
-                    <div class="cart-item-details">
-                        <div class="cart-item-header">
-                            <h4 class="cart-item-title">${item.name}</h4>
-                            <span class="cart-item-price">₹${itemTotal}</span>
-                        </div>
-                        ${addonsText ? `<div class="cart-item-addons">${addonsText}</div>` : ''}
-                        ${instText ? `<div class="cart-item-addons" style="font-style: italic;">${instText}</div>` : ''}
-                        
-                        <div class="cart-item-controls">
-                            <div class="quantity-controls small">
-                                <button onclick="window.updateCartItemQty('${item.id}', -1)">-</button>
-                                <span>${item.quantity}</span>
-                                <button onclick="window.updateCartItemQty('${item.id}', 1)">+</button>
-                            </div>
-                            <button class="remove-item-btn" onclick="window.removeCartItem('${item.id}')">Remove</button>
-                        </div>
+                <div style="padding: 16px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; margin-bottom: 24px; background: var(--bg-panel, #ffffff);">
+                    <h4 style="margin: 0 0 16px 0; color: var(--brand-color);">Confirmed Orders</h4>
+                    ${allItemsHtml}
+                    <div style="display: flex; justify-content: space-between; margin-top: 12px; font-weight: bold; font-size: 1.1rem;">
+                        <span>Total Bill:</span>
+                        <span>₹${billTotal}</span>
                     </div>
                 </div>
             `;
             cartItemsContainer.insertAdjacentHTML('beforeend', html);
-        });
-
-        // Totals removed from UI
-    }
+        }
+        
+        // 3. Render unplaced cart items
+        if (cart.length > 0) {
+            let cartHeader = document.createElement('h4');
+            cartHeader.textContent = "New Items to Order";
+            cartHeader.style.margin = "0 0 16px 0";
+            cartHeader.style.color = "var(--text-dark)";
+            cartItemsContainer.appendChild(cartHeader);
+            
+            cart.forEach((item) => {
+                const itemTotal = item.unitPrice * item.quantity;
+                const addonsText = item.addons.length > 0 ? `Add-ons: ${item.addons.join(', ')}` : '';
+                const instText = item.instructions ? `Note: ${item.instructions}` : '';
+                
+                const isVeg = !item.name.toLowerCase().includes('chicken'); // Mock veg/non-veg logic
+                const iconColor = isVeg ? '#22c55e' : '#b91c1c';
+                const iconShape = isVeg ? '<circle cx="12" cy="12" r="4" fill="currentColor"/>' : '<polygon points="12,8 16,16 8,16" fill="currentColor"/>';
+                
+                const html = `
+                    <div class="cart-item" style="display: flex; flex-direction: column; padding: 16px 0; border-bottom: 1px solid #f1f5f9; gap: 12px; margin-bottom: 0; border-radius: 0; box-shadow: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                            <div style="display: flex; gap: 8px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" style="color: ${iconColor}; margin-top: 2px;">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    ${iconShape}
+                                </svg>
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <h4 class="cart-item-title" style="margin: 0; font-size: 1rem; color: #1e293b; font-weight: 600;">${item.name}</h4>
+                                    <span class="cart-item-price" style="font-size: 0.9rem; color: #64748b;">₹${itemTotal}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="quantity-controls small" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); background: white;">
+                                <button style="color: #1e293b; font-size: 1rem; padding: 0 8px;" onclick="window.updateCartItemQty('${item.id}', -1)">−</button>
+                                <span style="font-weight: 600; font-size: 0.9rem; min-width: 20px; text-align: center;">${item.quantity}</span>
+                                <button style="color: #1e293b; font-size: 1rem; padding: 0 8px;" onclick="window.updateCartItemQty('${item.id}', 1)">+</button>
+                            </div>
+                        </div>
+                        
+                        ${addonsText ? `<div class="cart-item-addons" style="font-size: 0.85rem; color: #64748b; margin-left: 24px;">${addonsText}</div>` : ''}
+                        
+                        <div style="margin-top: 4px;">
+                            <div style="display: flex; align-items: center; gap: 8px; border: 1px solid #f1f5f9; border-radius: 6px; padding: 8px 12px; background: white;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                <input type="text" placeholder="Add cooking instructions" value="${item.instructions || ''}" style="border: none; outline: none; width: 100%; font-size: 0.85rem; color: #64748b; font-family: 'Outfit', sans-serif;" onblur="window.updateCartItemInstructions('${item.id}', this.value)" />
+                            </div>
+                        </div>
+                    </div>
+                `;
+                cartItemsContainer.insertAdjacentHTML('beforeend', html);
+            });
+            
+            // Add Offers Section
+            const offersHtml = `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; margin-top: 16px; cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 12px; color: #16a34a; font-weight: 600;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                        </svg>
+                        <span>Apply Store offers/coupons</span>
+                    </div>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+            `;
+            cartItemsContainer.insertAdjacentHTML('beforeend', offersHtml);
+            
+            if (slideToOrderContainer) slideToOrderContainer.classList.remove('disabled');
+            freqBoughtSection.style.display = 'block';
+        } else {
+            if (slideToOrderContainer) slideToOrderContainer.classList.add('disabled');
+            freqBoughtSection.style.display = 'none';
+            if (!hasActiveOrders) {
+                cartItemsContainer.innerHTML = '<div class="empty-cart-msg">Your cart is empty</div>';
+            }
+        }
+        
+        // Pay Button Logic
+        const payBtn = document.getElementById('cart-pay-now-btn');
+        if (payBtn) {
+            const cancelTime = localStorage.getItem('mochaOrderCancelEndTime');
+            const isCancelWindowOpen = cancelTime && Date.now() < parseInt(cancelTime, 10);
+            
+            if (cart.length > 0) {
+                // Currently ordering new items
+                payBtn.classList.add('disabled');
+                payBtn.disabled = true;
+                payBtn.textContent = 'Pay Bill Now';
+                payBtn.onclick = null;
+            } else if (isCancelWindowOpen) {
+                // Order placed but can still cancel
+                payBtn.classList.add('disabled');
+                payBtn.disabled = true;
+                payBtn.textContent = 'Order Confirming...';
+                payBtn.onclick = null;
+            } else if (hasActiveOrders) {
+                // Order is confirmed and ready to be paid
+                payBtn.classList.remove('disabled');
+                payBtn.disabled = false;
+                payBtn.textContent = `Pay Bill (₹${billTotal})`;
+                // Use the first active order's ID for the mock payment reference
+                const refOrderId = activeOrders.length > 0 ? activeOrders[0].id : '';
+                payBtn.onclick = () => window.payBill(refOrderId, billTotal);
+            } else {
+                // Nothing to pay
+                payBtn.classList.add('disabled');
+                payBtn.disabled = true;
+                payBtn.textContent = 'Pay Bill Now';
+                payBtn.onclick = null;
+            }
+        }
+    };
 
     // Global functions for inline HTML event handlers
+    window.payBill = function(orderId, amount) {
+        // Mock payment flow
+        alert(`Redirecting to payment gateway for ₹${amount}...`);
+        
+        let kitchenOrders = [];
+        try {
+            kitchenOrders = JSON.parse(localStorage.getItem('mochaKitchenOrders')) || [];
+        } catch (e) {}
+        
+        const myTable = sessionStorage.getItem('mochaTableNumber') || 'Takeaway/Unknown';
+        const myDevice = localStorage.getItem('mochaDeviceId');
+        
+        // Mark all active orders for this device as paid
+        let paidAny = false;
+        kitchenOrders.forEach(o => {
+            if (o.tableNumber === myTable && o.deviceId === myDevice && (o.status === 'pending' || o.status === 'completed' || o.status === 'served')) {
+                o.status = 'paid';
+                paidAny = true;
+            }
+        });
+        
+        if (paidAny) {
+            localStorage.setItem('mochaKitchenOrders', JSON.stringify(kitchenOrders));
+            
+            // Dispatch event so kitchen dash updates
+            window.dispatchEvent(new Event('storage'));
+            
+            alert('Payment Successful! Thank you for dining with Dhunki.');
+            if (typeof window.updateCartUI === 'function') {
+                window.updateCartUI(); // refresh UI
+            }
+        }
+    };
+
     window.updateCartItemQty = function(id, change) {
         const item = cart.find(i => i.id === id);
         if (item) {
@@ -294,8 +479,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (item.quantity <= 0) {
                 window.removeCartItem(id);
             } else {
-                updateCartUI();
+                if (typeof window.updateCartUI === 'function') {
+                    window.updateCartUI();
+                }
             }
+        }
+    };
+
+    window.updateCartItemInstructions = function(id, instructions) {
+        const item = cart.find(i => i.id === id);
+        if (item) {
+            item.instructions = instructions;
+            // No need to refresh UI since the input already has the value
         }
     };
 

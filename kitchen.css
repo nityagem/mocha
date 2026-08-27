@@ -11,11 +11,13 @@
     --success-dark: #047857;
     --warning: #f59e0b;
     --danger: #ef4444;
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Outfit', sans-serif;
 }
 
 body {
     margin: 0;
-    font-family: 'Outfit', sans-serif;
+    font-family: var(--font-body);
     background-color: var(--bg-main);
     color: var(--text-dark);
     -webkit-font-smoothing: antialiased;
@@ -36,6 +38,7 @@ body {
 }
 
 .header h1 {
+    font-family: var(--font-heading);
     margin: 0;
     font-size: 1.75rem;
     font-weight: 700;
@@ -69,7 +72,7 @@ body {
     border: 2px solid var(--border-color);
     padding: 12px 24px;
     border-radius: 12px;
-    font-family: 'Outfit', sans-serif;
+    font-family: var(--font-body);
     font-weight: 600;
     font-size: 1.1rem;
     cursor: pointer;
@@ -248,7 +251,7 @@ body {
     font-weight: 700;
     cursor: pointer;
     transition: background-color 0.2s, transform 0.1s;
-    font-family: 'Outfit', sans-serif;
+    font-family: var(--font-body);
     box-shadow: 0 4px 6px rgba(120, 53, 15, 0.2);
 }
 
@@ -282,6 +285,7 @@ body {
 }
 
 .empty-state h2 {
+    font-family: var(--font-heading);
     font-size: 2rem;
     color: #475569;
     margin-bottom: 8px;
